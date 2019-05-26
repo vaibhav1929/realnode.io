@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" type="text/javascript"></script>
+
+    <script src="/static/client-app.js" type="text/javascript"></script>
+    <script src = "/socket.io/socket.io.js"></script>
+    <script>var socket = io(); var dataBounded = false;</script>
+</head>
+<body style="padding:0px 35%">
+
+<div class="form-group">
+    <label for="pr_name">Product Name</label>
+    <input type="email" class="form-control" id="pr_name" placeholder="Hp Pavilion x360">
+</div>
+<div class="form-group">
+    <label for="pr_price">Product Price</label>
+    <input type="number" class="form-control" id="pr_price" placeholder="75000">
+</div>
+
+<div class="form-group">
+    <label for="pr_id">Product ID( * only for delete or edit)</label>
+    <input type="number" class="form-control" id="pr_id" placeholder="9">
+</div>
+
+<div class="form-group">
+    <button id="insBtn" class="btn btn-success" onclick="performInsert()">Add Product</button>
+    <button id="editBtn" class="btn btn-info" onclick="performUpdate()">Edit Product</button>
+    <button id="delBtn" class="btn btn-danger" onclick="performDelete()">Remove Product</button>
+</div>
+
+<table class="table table-dark" id="holder">
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Product Name</th>
+        <th scope="col">Product Price</th>
+    </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+</table>
+
+
+<script>
+    function boundData(){
+
+        var query = {selectQuery:"SELECT * FROM java_product",isBroadcast:true};
+        fetchData(socket,query,function (jsonData) {
+                var dataHolder = document.getElementById("tableBody");
+                dataHolder.innerHTML = "";
+                for(var i = 0; i < jsonData.length; i++){
+                    var row = dataHolder.insertRow();
+                    row.insertCell(0).innerHTML = jsonData[i].id;
+                    row.insertCell(1).innerHTML = jsonData[i].name;
+                    row.insertCell(2).innerHTML = jsonData[i].price;
+                }
+        });
+    }
+
+    boundData();
+
+    function performInsert() {
+        var query = {sqlQuery:"INSERT INTO java_product(name,price) VALUES('"+document.getElementById("pr_name").value
+            +"',"+document.getElementById("pr_price").value+")",
+                    selectQuery:"SELECT * FROM java_product"};
+        boundInsert(socket,query,function () {
+            //handle callback
+            document.getElementById("pr_name").value = "";
+            document.getElementById("pr_price").value = "";
+            boundData();
+        });
+    }
+    function performDelete() {
+        var query = {sqlQuery:"DELETE FROM java_product WHERE id="+document.getElementById("pr_id").value,
+            selectQuery:"SELECT * FROM java_product"};
+        boundDelete(socket,query,function () {
+            //handle callback
+            document.getElementById("pr_name").value = "";
+            document.getElementById("pr_price").value = "";
+            document.getElementById("pr_id").value = "";
+            boundData();
+        });
+    }
+    function performUpdate() {
+        var query = {sqlQuery:"UPDATE java_product SET name='"+document.getElementById("pr_name").value
+            +"', price="+document.getElementById("pr_price").value+" WHERE id="+document.getElementById("pr_id").value,
+            selectQuery:"SELECT * FROM java_product"};
+        boundUpdate(socket,query,function () {
+            //handle callback
+            document.getElementById("pr_name").value = "";
+            document.getElementById("pr_price").value = "";
+            document.getElementById("pr_id").value = "";
+            boundData();
+        });
+    }
+</script>
+</body>
+</html>

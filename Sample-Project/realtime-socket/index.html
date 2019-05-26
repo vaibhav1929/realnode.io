@@ -1,0 +1,50 @@
+<html>
+<head>
+    <title></title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" type="text/javascript"></script>
+
+    <script src="/static/client-app.js" type="text/javascript"></script>
+    <script src = "/socket.io/socket.io.js"></script>
+    <script>var socket = io();</script>
+
+    <script>
+        function signUp() {
+            boundInsert(socket,{sqlQuery:"INSERT INTO java_login(username,password) VALUES('"+document.getElementById('userName').value+
+                "','"+document.getElementById('userPsw').value+"')",selectQuery:""});
+        }
+        function login() {
+            fetchData(socket,{selectQuery:"SELECT * FROM java_login WHERE username='"+document.getElementById('userName').value
+                              +"' AND password='"+document.getElementById('userPsw').value+"'",isBroadcast:false},function (data) {
+                if(data.length > 0){window.location.href = "display.html"}
+                else{alert("Failed")}
+            });
+        }
+    </script>
+</head>
+
+<body>
+<div class="card col-sm-4">
+    <article class="card-body">
+        <button onclick="signUp()" class="float-right btn btn-outline-primary">Sign up</button>
+        <h4 class="card-title mb-4 mt-1">Sign in</h4>
+            <div class="form-group">
+                <label>Your username</label>
+                <input id="userName" class="form-control" placeholder="Email" type="text">
+            </div>
+            <div class="form-group">
+                <label>Your password</label>
+                <input id="userPsw" class="form-control" placeholder="******" type="password">
+            </div>
+
+            <div class="form-group">
+                <button onclick="login()" type="submit" class="btn btn-primary btn-block"> Login  </button>
+            </div>
+
+    </article>
+</div>
+
+</body>
+
+</html>
+
